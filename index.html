@@ -19,10 +19,6 @@
 		<div class="content">
 			<div class="title">Aaqu</div>
 			<div class="options">
-				<!--<label>pixels X:</label>
-				<input type="number" id="x_axis_pixels" value="128" min="0" max="128">
-				<label>pixels Y:</label>
-				<input type="number" id="y_axis_pixels" value="32" min="0" max="64">-->
 				<button id="set_128x32">128x32px</button>
 				<button id="set_128x64">128x64px</button>
 				<button id="generate_hex" disabled>generate hex</button>
@@ -55,8 +51,6 @@
 				function create_screen() {
 					document.getElementById("screen").innerHTML = "";
 					
-					//x_axis_pixels = document.getElementById("x_axis_pixels").value;
-					//y_axis_pixels = document.getElementById("y_axis_pixels").value;
 					if (x_axis_pixels > 128) {
 						x_axis_pixels = 128;
 						document.getElementById("x_axis_pixels").value = x_axis_pixels;
@@ -105,8 +99,6 @@
 						if (mouse_down == true) {
 							if (rgb2hex(e.target.style.background) == "#0b0f14") {
 								e.target.style.background = "#4bc2dc";
-							} else if (rgb2hex(e.target.style.background) == "#4bc2dc") {
-								e.target.style.background = "#0b0f14";
 							} 
 						}	
 					}	
@@ -117,9 +109,9 @@
 					if (e.target.parentNode.id == "screen") {
 						if (rgb2hex(e.target.style.background) == "#4bc2dc") {
 							e.target.style.background = "#0b0f14";
-						} /* else if (rgb2hex(e.target.style.background) == "#0b0f14") {
+						} else if (rgb2hex(e.target.style.background) == "#0b0f14") {
 							e.target.style.background = "#4bc2dc";
-						} */	
+						} 	
 					}	
 				});	
 
