@@ -1,182 +1,179 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<title>ssd1306 hex img generator</title>
-	</head>
-	
-	<style>
-		body { user-select: none; margin: 0px; font-family: "arial"; color: white; background: #1a1a1a; }
-		
-		#screen { position: relative; width: 1023px; margin: auto; margin-top: 10px; }
-		#out_string { font-family: monospace; width: 1000px; margin: auto; margin-top: 10px; text-align: center;}
+		<style>
+			body { user-select: none; margin: 0; color: white; background: #1a1a1a; }
 
-		.title { width: 100px; margin: 8px; font-family: "magneto"; font-size: 40px; margin: auto;}
-		.content { height: 100vh; width: 100%; }
-		.options { width: 1000px; margin: auto; padding: 10px; background: #2b2b2b;}
-		.pixel { position: absolute; width: 7px; height: 7px; }
-	</style>
+			.screen { position: relative; width: 1023px; margin: 10px auto 0 auto; }
+			.outString { font-family: monospace; width: 1000px; margin: 10px auto 0 auto; text-align: center;}
+
+			.title { width: 100px; margin: 8px auto 0 auto; font-size: 40px; }
+			.content { height: 100vh; width: 100%; }
+			.options { width: 1000px; margin: auto; padding: 10px; background: #2b2b2b; }
+		</style>
+	</head>
+
 	<body>
 		<div class="content">
 			<div class="title">Aaqu</div>
 			<div class="options">
-				<button id="set_128x32">128x32px</button>
-				<button id="set_128x64">128x64px</button>
-				<button id="generate_hex" disabled>generate hex</button>
-				<button id="copy" disabled>copy</button>
+				<button class="set128x32">128x32px</button>
+				<button class="set128x64">128x64px</button>
+				<button class="hex" disabled>generate hex</button>
+				<button class="copy" disabled>copy</button>
 			</div>
-			<div id="screen"></div>
-			<div id="out_string"></div>
-			<script>
-
-				// ----- creating pixels -----
-				var x_axis_pixels = 0;
-				var y_axis_pixels = 0;
-
-				document.getElementById("set_128x32").addEventListener("click", function() {
-					x_axis_pixels = 128;
-					y_axis_pixels = 32;
-					create_screen();
-					document.getElementById("generate_hex").disabled = false;
-					document.getElementById("copy").disabled = false;
-				});
-
-				document.getElementById("set_128x64").addEventListener("click", function() {
-					x_axis_pixels = 128;
-					y_axis_pixels = 64;
-					create_screen();
-					document.getElementById("generate_hex").disabled = false;
-					document.getElementById("copy").disabled = false;
-				});
-
-				function create_screen() {
-					document.getElementById("screen").innerHTML = "";
-					
-					if (x_axis_pixels > 128) {
-						x_axis_pixels = 128;
-						document.getElementById("x_axis_pixels").value = x_axis_pixels;
-					}
-					if (y_axis_pixels > 64) {
-						y_axis_pixels = 64;
-						document.getElementById("y_axis_pixels").value = y_axis_pixels;
-					}
-					document.getElementById("screen").style.height = (y_axis_pixels * 8) +"px";
-
-					var pixel_id = 1;
-					var pixel_top_pos = 0;
-					var pixel_left_pos = 0;
-					while (pixel_id <= x_axis_pixels * y_axis_pixels) {
-						pixel = document.createElement('div');
-						pixel.classList.add("pixel");
-						pixel.id = "p_" + pixel_id;
-						pixel.style.top = pixel_top_pos + "px";
-						pixel.style.left = pixel_left_pos + "px";
-						pixel.style.background = "#0b0f14";
-						
-						pixel_left_pos = pixel_left_pos + 8;
-						if (pixel_id % x_axis_pixels == 0) {
-							pixel_left_pos = 0;
-							pixel_top_pos = pixel_top_pos + 8;	
-						}
-
-						document.getElementById("screen").appendChild(pixel); 
-						pixel_id++;	
-					}
-				}
-
-				// ----- painting -----
-				var mouse_down = false;
-				document.body.onmousedown = function(e) { 
-					mouse_down = true;	
-						
-				}
-				document.body.onmouseup = function() {
-					mouse_down = false;
-				}
-
-				// mouse press and move - painting
-				document.addEventListener("mouseover", function(e) {
-					if (e.target.parentNode.id == "screen") {
-						if (mouse_down == true) {
-							if (rgb2hex(e.target.style.background) == "#0b0f14") {
-								e.target.style.background = "#4bc2dc";
-							} 
-						}	
-					}	
-				});
-
-				// mouse click - remove painting
-				document.addEventListener("click", function(e) {
-					if (e.target.parentNode.id == "screen") {
-						if (rgb2hex(e.target.style.background) == "#4bc2dc") {
-							e.target.style.background = "#0b0f14";
-						} else if (rgb2hex(e.target.style.background) == "#0b0f14") {
-							e.target.style.background = "#4bc2dc";
-						} 	
-					}	
-				});	
-
-				// generate hex
-				document.getElementById("generate_hex").addEventListener("click", function() {
-					var pixel_binary = "";
-					var all_hex_array = [];
-					var start_hex_fom_pixel = 1;
-					var array_id = 0;
-					
-					x_axis_hex_id = x_axis_pixels * y_axis_pixels / 8;
-					for (j=0; j<x_axis_hex_id; j++) {
-						for (i=start_hex_fom_pixel; i<=start_hex_fom_pixel + 7; i++) {
-							pixel_background = rgb2hex(document.getElementById("p_" + i).style.background);
-							if (pixel_background == "#4bc2dc") {
-								pixel_binary = pixel_binary + "1";
-							} else {
-								pixel_binary = pixel_binary + "0";
-							}
-						}
-						all_hex_array[array_id] = bin2hex(pixel_binary);
-						start_hex_fom_pixel = start_hex_fom_pixel + 8;
-						console.log(all_hex_array[array_id]);
-						array_id++;
-						pixel_binary = "";
-					}
-
-					var out_string = "";
-					all_hex_array_out_id = 0;
-					varout_string_id = 0;
-					for (j=0; j<y_axis_pixels; j++) {
-						for (i=0; i<x_axis_pixels/8; i++) {
-							out_string = out_string + all_hex_array[all_hex_array_out_id] + ",";
-							all_hex_array_out_id++;
-						}
-						out_string = out_string + "\n";
-					}
-					document.getElementById("out_string").innerText = out_string.slice(0, -2);
-				});
-				
-				// copy out hex string to clipboard
-				document.getElementById("copy").addEventListener("click", function() {
-					document.body.style.userSelect = "auto";
-					var range = document.createRange();
-					range.selectNode(document.getElementById("out_string"));
-					window.getSelection().removeAllRanges();
-					window.getSelection().addRange(range);
-					document.execCommand("copy");
-					window.getSelection().removeAllRanges();
-					document.body.style.userSelect = "none";
-				});
-
-				function rgb2hex(rgb){
-					rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
-					return (rgb && rgb.length === 4) ? "#" +
-					("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
-					("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
-					("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
-				}
-
-				function bin2hex(binary){
-					return "0x" + parseInt(binary, 2).toString(16).toUpperCase();
-				}
-				
-			</script>	
+			<div class="screen"></div>
+			<div class="outString"></div>
 		</div>
+
+		<script>
+			// current screen size
+			const screenSize = {
+				x: 0,
+				y: 0,
+				pixels: () => { return screenSize.x * screenSize.y },
+			};
+
+			// button create screen 128x32 pixels
+			document.querySelector(".set128x32").addEventListener("click", () => {
+				createScreen(128, 32);
+				document.querySelector(".hex").disabled = false;
+				document.querySelector(".copy").disabled = false;
+			});
+
+			// button create screen 128x64 pixels
+			document.querySelector(".set128x64").addEventListener("click", () =>  {
+				createScreen(128, 64);
+				document.querySelector(".hex").disabled = false;
+				document.querySelector(".copy").disabled = false;
+			});
+
+			// mouse state
+			let mouseState = false;
+			document.body.onmousedown = () => {
+				mouseState = true;
+			}
+			document.body.onmouseup = () =>  {
+				mouseState = false;
+			}
+
+			// mouse press and move - drawing
+			document.addEventListener("mouseover", e => {
+				if (e.target.parentNode.className === "screen") {
+					if (mouseState) {
+						if (rgb2hex(e.target.style.background) === "#0b0f14") {
+							e.target.style.background = "#4bc2dc";
+						}
+					}
+				}
+			});
+
+			// mouse click - remove color
+			document.addEventListener("click", e => {
+				if (e.target.parentNode.className === "screen") {
+					if (rgb2hex(e.target.style.background) === "#4bc2dc") {
+						e.target.style.background = "#0b0f14";
+					} else if (rgb2hex(e.target.style.background) === "#0b0f14") {
+						e.target.style.background = "#4bc2dc";
+					}
+				}
+			});
+
+			// generate hex
+			document.querySelector(".hex").addEventListener("click", () => {
+				// prepare hex array
+				let allHex = [];
+				let startHexFomPixel = 1;
+				const hexGroups = screenSize.pixels() / 8;
+				for (let hexGroup = 0; hexGroup < hexGroups; hexGroup++) {
+					let pixelBinary = "";
+					for (let i = startHexFomPixel; i <= startHexFomPixel + 7; i++) {
+						const pixelColor = rgb2hex(document.querySelector("#p" + i).style.background);
+						if (pixelColor === "#4bc2dc") {
+							pixelBinary += "1";
+						} else {
+							pixelBinary += "0";
+						}
+					}
+					allHex.push(bin2hex(pixelBinary));
+					startHexFomPixel += 8;
+				}
+
+				// prepare out string
+				let outString = "";
+				let allHexId = 0;
+				for (let y = 0; y < screenSize.y; y++) {
+					for (let x = 0; x < screenSize.x / 8; x++) {
+						outString += allHex[allHexId] + ",";
+						allHexId++;
+					}
+					outString += "\n";
+				}
+				document.querySelector(".outString").innerText = outString.slice(0, -2);
+			});
+
+			// copy out hex string to clipboard
+			document.querySelector(".copy").addEventListener("click", () => {
+				document.body.style.userSelect = "auto";
+				const range = document.createRange();
+				range.selectNode(document.querySelector(".outString"));
+				window.getSelection().removeAllRanges();
+				window.getSelection().addRange(range);
+				document.execCommand("copy");
+				window.getSelection().removeAllRanges();
+				document.body.style.userSelect = "none";
+			});
+
+			function rgb2hex(rgb){
+				rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+				return (rgb && rgb.length === 4) ? "#" +
+						("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
+						("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
+						("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : "";
+			}
+
+			function bin2hex(binary){
+				return "0x" + parseInt(binary, 2).toString(16).toUpperCase();
+			}
+
+			// create draw screen
+			function createScreen(x, y) {
+
+				//set current screen size
+				screenSize.x = x;
+				screenSize.y = y;
+
+				const screen = document.querySelector(".screen");
+				screen.innerHTML = "";
+				screen.style.height = (y * 8) + "px";
+
+				const pixels = {
+					id: 1,
+					top: 0,
+					left: 0,
+				};
+
+				while (pixels.id <= x * y) {
+					const pixel = screen.appendChild(document.createElement("div"));
+					pixel.classList.add("pixel");
+					pixel.id = "p" + pixels.id;
+
+					pixel.style.position = "absolute";
+					pixel.style.width = "7px";
+					pixel.style.height = "7px";
+					pixel.style.top = pixels.top + "px";
+					pixel.style.left = pixels.left + "px";
+					pixel.style.background = "#0b0f14";
+
+					pixels.left += 8;
+					if (pixels.id % x === 0) {
+						pixels.left = 0;
+						pixels.top += 8;
+					}
+					pixels.id++;
+				}
+			}
+		</script>
 	</body>
 </html>
