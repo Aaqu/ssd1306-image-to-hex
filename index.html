@@ -4,28 +4,25 @@
 		<title>ssd1306 hex img generator</title>
 		<style>
 			body { user-select: none; margin: 0; color: white; background: #1a1a1a; height: 100vh; width: 100%; }
-
-			.screen { position: relative; width: 1023px; margin: 10px auto 0 auto; }
-			.outString { font-family: monospace; width: 640px; margin: 10px auto 0 auto; text-align: left;}
-
 			.title { width: 100px; margin: 8px auto 8px auto; font-family: sans-serif; font-size: 40px; }
-			.content {  }
-			.options { width: 1000px; margin: auto; padding: 10px; background: #2b2b2b; }
+
+			button { background-color: #458bed; }
+			button:hover { background-color: #336cbd; }
+
 		</style>
 	</head>
 
 	<body>
+		<!-- title -->
 		<div class="title">Aaqu</div>
-		<div class="options">
-			<button class="set128x32">128x32px</button>
-			<button class="set128x64">128x64px</button>
-			<button class="undo" disabled>undo</button>
-			<button class="redo" disabled>redo</button>
-			<button class="hex" disabled>generate hex</button>
-			<button class="copy" disabled>copy</button>
-		</div>
-		<div class="screen"></div>
-		<div class="outString"></div>
-		<script src="draw.js"></script>
+
+		<!-- sandbox -->
+		<div class="sandbox"></div>
+
+		<!-- scripts -->
+		<script src="screen.js"></script>
+		<script>
+			new screen('.sandbox').create();
+		</script>
 	</body>
 </html>
