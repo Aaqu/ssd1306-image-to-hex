@@ -93,7 +93,7 @@ class ssd1306 {
         }
       }, '');
       const outHex = screenArea.querySelector('.outHex');
-      outHex.innerText = arduinoSketch(allPixelsString);
+      outHex.innerText = arduinoSketch(allPixelsString, this.screen.width, this.screen.height);
       outHex.style.userSelect = 'text';
     });
 
@@ -234,13 +234,13 @@ function reverseColor(element) {
   }
 }
 
-function arduinoSketch(hexString) {
+function arduinoSketch(hexString, width, height) {
   return `
     #include \u003CAdafruit_GFX.h\u003E;
     #include \u003CAdafruit_SSD1306.h\u003E;
     
     // screen type
-    Adafruit_SSD1306 display(128, 64, &Wire, -1);
+    Adafruit_SSD1306 display(${width}, ${height}, &Wire, -1);
     
     // special variable - image
     const unsigned char PROGMEM AaquImage [] = {
@@ -262,7 +262,7 @@ function arduinoSketch(hexString) {
     
       // display image
       display.clearDisplay();
-      display.drawBitmap(0, 0, AaquImage, 128, 64, WHITE);
+      display.drawBitmap(0, 0, AaquImage, ${width}, ${height}, WHITE);
       display.display();
     }
     
