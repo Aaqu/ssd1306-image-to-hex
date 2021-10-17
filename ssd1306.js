@@ -133,7 +133,7 @@ class ssd1306 {
     document.querySelector('#copy').addEventListener('click', () => {
       document.body.style.userSelect = 'auto';
       const range = document.createRange();
-      const screenArea = this.screen.parent;
+      const screenArea = document.querySelector(this.screen.parent)
       range.selectNode(screenArea.querySelector('.outHex'));
       window.getSelection().removeAllRanges();
       window.getSelection().addRange(range);
