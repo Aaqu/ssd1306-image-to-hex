@@ -1,4 +1,4 @@
-class screen {
+class ssd1306 {
   constructor(element) {
     this.screen = {
       parent: document.querySelector(element),
