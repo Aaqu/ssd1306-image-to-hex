@@ -7,25 +7,28 @@ class ssd1306 {
       lastPixel: [],
       removedPixel: [],
       isDrawing: false,
+      mouseDownBackgroundColor: null,
     }
   }
 
-  // create full sandbox
+  // create full screen sandbox
   create() {
-    const screenArea = this.screen.parent;
     // buttons menu
-    const menu = screenArea.appendChild(document.createElement('div'));
+    const menu = this.screen.parent.appendChild(document.createElement('div'));
     menu.className = 'menu';
+
     // screen sandbox
-    const screenSandbox = screenArea.appendChild(document.createElement('div'));
+    const screenSandbox = this.screen.parent.appendChild(document.createElement('div'));
     screenSandbox.className = 'screenSandbox';
-    // out HEX
-    const outHex = screenArea.appendChild(document.createElement('div'));
+
+    // out hex
+    const outHex = this.screen.parent.appendChild(document.createElement('div'));
     outHex.className = 'outHex';
     outHex.style.fontFamily = 'monospace';
     outHex.style.width = '640px';
     outHex.style.margin = '10px auto 0 auto';
     outHex.style.textAlign = 'left';
+    outHex.style.userSelect = 'text';
 
     //first load
     this.createMenu();
@@ -43,6 +46,26 @@ class ssd1306 {
       this.screen.width = 128;
       this.screen.height = 64;
       this.createScreen();
+    });
+
+    // clear screen area
+    document.querySelector('#clear').addEventListener('click', () => {
+      this.screen.lastPixel = [];
+      this.screen.lastPremovedPixelixel = [];
+      const pixels = document.querySelectorAll('.pixel');
+      for (const pixel of pixels) {
+        pixel.style.backgroundColor = '#0b0f14';
+      }
+    });
+
+    // fill screen area
+    document.querySelector('#fill').addEventListener('click', () => {
+      this.screen.lastPixel = [];
+      this.screen.lastPremovedPixelixel = [];
+      const pixels = document.querySelectorAll('.pixel');
+      for (const pixel of pixels) {
+        pixel.style.backgroundColor = '#4bc2dc';
+      }
     });
 
     // undo button
@@ -92,9 +115,8 @@ class ssd1306 {
           return prev + element + ',';
         }
       }, '');
-      const outHex = screenArea.querySelector('.outHex');
+
       outHex.innerText = arduinoSketch(allPixelsString, this.screen.width, this.screen.height);
-      outHex.style.userSelect = 'text';
     });
 
     // copy to clipboard
@@ -120,18 +142,20 @@ class ssd1306 {
     menu.style.padding = '10px';
     menu.style.backgroundColor = '#2b2b2b';
 
-    createButton(menu, 'screen128x32px', 'Screen 128x32px')
-    createButton(menu, 'screen128x64px', 'Screen 128x64px')
-    createButton(menu, 'undo', 'Undo')
-    createButton(menu, 'redo', 'Redo')
-    createButton(menu, 'hex', 'Convert to HEX')
-    createButton(menu, 'copy', 'Copy')
+    createButton(menu, 'screen128x32px', 'Screen 128x32px');
+    createButton(menu, 'screen128x64px', 'Screen 128x64px');
+    createButton(menu, 'clear', 'Clear');
+    createButton(menu, 'fill', 'Fill');
+    createButton(menu, 'undo', 'Undo');
+    createButton(menu, 'redo', 'Redo');
+    createButton(menu, 'hex', 'Convert to HEX');
+    createButton(menu, 'copy', 'Copy');
 
     function createButton(parent, id, innerText) {
       const button = parent.appendChild(document.createElement('button'));
       button.id = id;
       button.innerText = innerText;
-      button.style.color = '#ffffff';
+      button.style.color = '#fff';
       button.style.fontSize = '14px';
       button.style.margin = '0 0 0 2px';
       button.style.padding = '3px 10px';
@@ -175,18 +199,18 @@ class ssd1306 {
         currentPixel.left = 0;
         currentPixel.top += 8;
       }
-
-      // mouse click
-      pixel.addEventListener('click', e => {
-        reverseColor(e.target);
-        this.screen.lastPixel.push(e.target.id);
-      });
-
+      
       currentPixel.id++;
     }
 
     // mouse down
-    screenSandbox.addEventListener('mousedown', () => {
+    screenSandbox.addEventListener('mousedown', e => {
+      if (e.target.classList.contains('pixel')) {
+        console.log(rgb2hex(e.target.style.backgroundColor));
+        this.screen.mouseDownBackgroundColor = rgb2hex(e.target.style.backgroundColor);
+        reverseColor(e.target);
+        this.screen.lastPixel.push(e.target.id);
+      }
       this.screen.isDrawing = true;
     });
 
@@ -194,8 +218,11 @@ class ssd1306 {
     screenSandbox.addEventListener('mouseover', e => {
       if (e.target.classList.contains('pixel') && this.screen.isDrawing) {
         this.screen.removedPixel = [];
-        if (rgb2hex(e.target.style.backgroundColor) === '#0b0f14') {
+        if (rgb2hex(e.target.style.backgroundColor) === '#0b0f14' && this.screen.mouseDownBackgroundColor === '#0b0f14') {
           e.target.style.backgroundColor = '#4bc2dc';
+          this.screen.lastPixel.push(e.target.id);
+        } else if (rgb2hex(e.target.style.backgroundColor) === '#4bc2dc' && this.screen.mouseDownBackgroundColor === '#4bc2dc') {
+          e.target.style.backgroundColor = '#0b0f14';
           this.screen.lastPixel.push(e.target.id);
         }
       }
@@ -234,13 +261,14 @@ function reverseColor(element) {
   }
 }
 
+// arduino sketch witch hex and screen settings
 function arduinoSketch(hexString, width, height) {
   return `
     #include \u003CAdafruit_GFX.h\u003E;
     #include \u003CAdafruit_SSD1306.h\u003E;
     
     // screen type
-    Adafruit_SSD1306 display(${width}, ${height}, &Wire, -1);
+    Adafruit_SSD1306 oled(${width}, ${height}, &Wire, -1);
     
     // special variable - image
     const unsigned char PROGMEM AaquImage [] = {
@@ -249,25 +277,16 @@ function arduinoSketch(hexString, width, height) {
     
     void setup() {
       // initialize display
-      display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-    
-      // Aaqu logo screen - you can delete
-      display.clearDisplay();
-      display.setTextSize(3);
-      display.setTextColor(WHITE);
-      display.setCursor(25, 5);
-      display.println("Aaqu");
-      display.display();
-      delay(900);
-    
+      oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+        
       // display image
-      display.clearDisplay();
-      display.drawBitmap(0, 0, AaquImage, ${width}, ${height}, WHITE);
-      display.display();
+      oled.clearDisplay();
+      oled.drawBitmap(0, 0, AaquImage, ${width}, ${height}, WHITE);
+      oled.display();
     }
     
     void loop() {
       // loop code
     };
-`
+  `
 }
