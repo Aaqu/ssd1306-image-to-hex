@@ -234,4 +234,40 @@ function reverseColor(element) {
   }
 }
 
-
+function arduinoSketch(hexString) {
+  return `
+    #include \u003CAdafruit_GFX.h\u003E;
+    #include \u003CAdafruit_SSD1306.h\u003E;
+    
+    // screen type
+    Adafruit_SSD1306 display(128, 64, &Wire, -1);
+    
+    // special variable - image
+    const unsigned char PROGMEM AaquImage [] = {
+      ${hexString}
+    };
+    
+    void setup() {
+      // initialize display
+      display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+    
+      // Aaqu logo screen - you can delete
+      display.clearDisplay();
+      display.setTextSize(3);
+      display.setTextColor(WHITE);
+      display.setCursor(25, 5);
+      display.println("Aaqu");
+      display.display();
+      delay(900);
+    
+      // display image
+      display.clearDisplay();
+      display.drawBitmap(0, 0, AaquImage, 128, 64, WHITE);
+      display.display();
+    }
+    
+    void loop() {
+      // loop code
+    };
+`
+}
