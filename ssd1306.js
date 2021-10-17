@@ -1,28 +1,30 @@
 class ssd1306 {
   constructor(element) {
     this.screen = {
-      parent: document.querySelector(element),
+      parent: element,
       width: 128,
       height: 32,
       lastPixel: [],
       removedPixel: [],
       isDrawing: false,
       mouseDownBackgroundColor: null,
+      firstLoad: true,
     }
   }
 
   // create full screen sandbox
   create() {
+    const screenArea = document.querySelector(this.screen.parent);
     // buttons menu
-    const menu = this.screen.parent.appendChild(document.createElement('div'));
+    const menu = screenArea.appendChild(document.createElement('div'));
     menu.className = 'menu';
 
     // screen sandbox
-    const screenSandbox = this.screen.parent.appendChild(document.createElement('div'));
+    const screenSandbox = screenArea.appendChild(document.createElement('div'));
     screenSandbox.className = 'screenSandbox';
 
     // out hex
-    const outHex = this.screen.parent.appendChild(document.createElement('div'));
+    const outHex = screenArea.appendChild(document.createElement('div'));
     outHex.className = 'outHex';
     outHex.style.fontFamily = 'monospace';
     outHex.style.width = '640px';
@@ -32,12 +34,16 @@ class ssd1306 {
 
     //first load
     this.createMenu();
-    this.createScreen();
+    // this.createScreen();
 
     // create screen 128x32px
     document.querySelector('#screen128x32px').addEventListener('click', () => {
       this.screen.width = 128;
       this.screen.height = 32;
+      this.screen.lastPixel = [];
+      this.screen.removedPixel = [];
+      this.screen.isDrawing = false;
+      this.screen.mouseDownBackgroundColor = null;
       this.createScreen();
     });
 
@@ -45,6 +51,10 @@ class ssd1306 {
     document.querySelector('#screen128x64px').addEventListener('click', () => {
       this.screen.width = 128;
       this.screen.height = 64;
+      this.screen.lastPixel = [];
+      this.screen.removedPixel = [];
+      this.screen.isDrawing = false;
+      this.screen.mouseDownBackgroundColor = null;
       this.createScreen();
     });
 
@@ -131,11 +141,12 @@ class ssd1306 {
       window.getSelection().removeAllRanges();
       document.body.style.userSelect = 'none';
     });
+
   }
 
   // create menu buttons
   createMenu() {
-    const screenArea = this.screen.parent;
+    const screenArea = document.querySelector(this.screen.parent);
     const menu = screenArea.querySelector('.menu');
     menu.style.width = '1000px';
     menu.style.margin = 'auto';
@@ -167,7 +178,7 @@ class ssd1306 {
 
   createScreen() {
     // create screen area
-    const screenArea = this.screen.parent;
+    const screenArea = document.querySelector(this.screen.parent);
     const screenSandbox = screenArea.querySelector('.screenSandbox');
     screenSandbox.innerHTML = '';
     screenSandbox.className = 'screenSandbox';
@@ -199,39 +210,44 @@ class ssd1306 {
         currentPixel.left = 0;
         currentPixel.top += 8;
       }
-      
+
       currentPixel.id++;
     }
+    if (this.screen.firstLoad) {
+      this.screen.firstLoad = false;
+      // mouse down
+      screenSandbox.addEventListener('mousedown', e => {
+        this.screen.isDrawing = true;
 
-    // mouse down
-    screenSandbox.addEventListener('mousedown', e => {
-      if (e.target.classList.contains('pixel')) {
-        console.log(rgb2hex(e.target.style.backgroundColor));
-        this.screen.mouseDownBackgroundColor = rgb2hex(e.target.style.backgroundColor);
-        reverseColor(e.target);
-        this.screen.lastPixel.push(e.target.id);
-      }
-      this.screen.isDrawing = true;
-    });
+        if (e.target.classList.contains('pixel')) {
 
-    // mouse draw
-    screenSandbox.addEventListener('mouseover', e => {
-      if (e.target.classList.contains('pixel') && this.screen.isDrawing) {
-        this.screen.removedPixel = [];
-        if (rgb2hex(e.target.style.backgroundColor) === '#0b0f14' && this.screen.mouseDownBackgroundColor === '#0b0f14') {
-          e.target.style.backgroundColor = '#4bc2dc';
-          this.screen.lastPixel.push(e.target.id);
-        } else if (rgb2hex(e.target.style.backgroundColor) === '#4bc2dc' && this.screen.mouseDownBackgroundColor === '#4bc2dc') {
-          e.target.style.backgroundColor = '#0b0f14';
+          this.screen.mouseDownBackgroundColor = rgb2hex(e.target.style.backgroundColor);
+          console.log(rgb2hex(e.target.style.backgroundColor))
+          reverseColor(e.target);
           this.screen.lastPixel.push(e.target.id);
         }
-      }
-    });
+      });
 
-    // mouse up
-    window.addEventListener('mouseup', () => {
-      this.screen.isDrawing = false;
-    });
+      // mouse draw
+      screenSandbox.addEventListener('mouseover', e => {
+        if (e.target.classList.contains('pixel') && this.screen.isDrawing) {
+          this.screen.removedPixel = [];
+          if (rgb2hex(e.target.style.backgroundColor) === '#0b0f14' && this.screen.mouseDownBackgroundColor === '#0b0f14') {
+            e.target.style.backgroundColor = '#4bc2dc';
+            this.screen.lastPixel.push(e.target.id);
+          } else if (rgb2hex(e.target.style.backgroundColor) === '#4bc2dc' && this.screen.mouseDownBackgroundColor === '#4bc2dc') {
+            e.target.style.backgroundColor = '#0b0f14';
+            this.screen.lastPixel.push(e.target.id);
+          }
+        }
+      });
+
+      // mouse up
+      window.addEventListener('mouseup', () => {
+        this.screen.isDrawing = false;
+      });
+    }
+
   }
 }
 
