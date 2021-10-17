@@ -133,7 +133,7 @@ class ssd1306 {
     document.querySelector('#copy').addEventListener('click', () => {
       document.body.style.userSelect = 'auto';
       const range = document.createRange();
-      const screenArea = document.querySelector(this.screen.parent)
+      const screenArea = document.querySelector(this.screen.parent);
       range.selectNode(screenArea.querySelector('.outHex'));
       window.getSelection().removeAllRanges();
       window.getSelection().addRange(range);
@@ -220,9 +220,7 @@ class ssd1306 {
         this.screen.isDrawing = true;
 
         if (e.target.classList.contains('pixel')) {
-
           this.screen.mouseDownBackgroundColor = rgb2hex(e.target.style.backgroundColor);
-          console.log(rgb2hex(e.target.style.backgroundColor))
           reverseColor(e.target);
           this.screen.lastPixel.push(e.target.id);
         }
