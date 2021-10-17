@@ -34,7 +34,7 @@ class ssd1306 {
 
     //first load
     this.createMenu();
-    // this.createScreen();
+    this.createScreen();
 
     // create screen 128x32px
     document.querySelector('#screen128x32px').addEventListener('click', () => {
@@ -103,7 +103,7 @@ class ssd1306 {
     // convert to hex
     document.querySelector('#hex').addEventListener('click', () => {
       // prepare hex array
-      const screenArea = this.screen.parent;
+      const screenArea = document.querySelector(this.screen.parent);
       const allPixels = screenArea.querySelectorAll('.pixel');
       const allPixelsColor = [...allPixels].map(e => {
         return rgb2hex(e.style.backgroundColor) === '#4bc2dc' ? 1 : 0;
