@@ -1,28 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>ssd1306 hex img generator</title>
-		<style>
-			body { user-select: none; margin: 0; color: white; background: #1a1a1a; height: 100vh; width: 100%; }
-			.title { width: 100px; margin: 8px auto 8px auto; font-family: sans-serif; font-size: 40px; }
+<head>
+  <title>ssd1306 hex img generator</title>
+  <style>
+    body {
+      user-select: none;
+      margin: 0;
+      color: white;
+      background: #1a1a1a;
+      height: 100vh;
+      width: 100%;
+    }
 
-			button { background-color: #458bed; }
-			button:hover { background-color: #336cbd; }
+    .title {
+      width: 100px;
+      margin: 8px auto 8px auto;
+      font-family: sans-serif;
+      font-size: 40px;
+    }
 
-		</style>
-	</head>
+    button {
+      background-color: #458bed;
+    }
 
-	<body>
-		<!-- title -->
-		<div class="title">Aaqu</div>
+    button:hover {
+      background-color: #336cbd;
+    }
 
-		<!-- sandbox -->
-		<div class="sandbox"></div>
+  </style>
+</head>
 
-		<!-- scripts -->
-		<script src="screen.js"></script>
-		<script>
-			new screen('.sandbox').create();
-		</script>
-	</body>
+<body>
+<!-- title -->
+<div class="title">Aaqu</div>
+<!-- sandbox -->
+<div class="sandbox"></div>
+
+
+<!-- scripts -->
+<script src="ssd1306.js"></script>
+<script>
+  new screen('.sandbox').create();
+</script>
+</body>
 </html>
